@@ -58,6 +58,28 @@ class FarmerRpcClient(RpcClient):
     async def get_harvesters_summary(self) -> Dict[str, object]:
         return await self.fetch("get_harvesters_summary", {})
 
+    async def _plot_request(self, command: str, peer_id: bytes32, page: int, page_size: int) -> Dict[str, Any]:
+        return await self.fetch(
+            command,
+            {
+                "peer_id": peer_id.hex(),
+                "page": page,
+                "page_size": page_size,
+            },
+        )
+
+    async def get_harvester_plots(self, peer_id: bytes32, page: int, page_size: int) -> Dict[str, Any]:
+        return await self._plot_request("get_harvester_plots", peer_id, page, page_size)
+
+    async def get_harvester_plots_invalid(self, peer_id: bytes32, page: int, page_size: int) -> Dict[str, Any]:
+        return await self._plot_request("get_harvester_plots_invalid", peer_id, page, page_size)
+
+    async def get_harvester_plots_keys_missing(self, peer_id: bytes32, page: int, page_size: int) -> Dict[str, Any]:
+        return await self._plot_request("get_harvester_plots_keys_missing", peer_id, page, page_size)
+
+    async def get_harvester_plots_duplicates(self, peer_id: bytes32, page: int, page_size: int) -> Dict[str, Any]:
+        return await self._plot_request("get_harvester_plots_duplicates", peer_id, page, page_size)
+
     async def get_pool_login_link(self, launcher_id: bytes32) -> Optional[str]:
         try:
             return (await self.fetch("get_pool_login_link", {"launcher_id": launcher_id.hex()}))["login_link"]

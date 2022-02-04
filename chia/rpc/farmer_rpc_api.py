@@ -1,8 +1,9 @@
 from typing import Any, Callable, Dict, List, Optional
 
-from chia.farmer.farmer import Farmer
+from chia.farmer.farmer import Farmer, PlotInfoRequestData, PlotPathRequestData
 from chia.types.blockchain_format.sized_bytes import bytes32
 from chia.util.byte_types import hexstr_to_bytes
+from chia.util.streamable import dataclass_from_dict
 from chia.util.ws_message import WsRpcMessage, create_payload_dict
 
 
@@ -21,6 +22,10 @@ class FarmerRpcApi:
             "/set_payout_instructions": self.set_payout_instructions,
             "/get_harvesters": self.get_harvesters,
             "/get_harvesters_summary": self.get_harvesters_summary,
+            "/get_harvester_plots": self.get_harvester_plots,
+            "/get_harvester_plots_invalid": self.get_harvester_plots_invalid,
+            "/get_harvester_plots_keys_missing": self.get_harvester_plots_keys_missing,
+            "/get_harvester_plots_duplicates": self.get_harvester_plots_duplicates,
             "/get_pool_login_link": self.get_pool_login_link,
         }
 
@@ -149,6 +154,32 @@ class FarmerRpcApi:
 
     async def get_harvesters_summary(self, _: Dict[str, object]) -> Dict[str, object]:
         return await self.service.get_harvesters(True)
+
+    async def get_harvester_plots(self, request: Dict):
+        try:
+            return await self.service.get_harvester_plots(dataclass_from_dict(PlotInfoRequestData, request))
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_harvester_plots_invalid(self, request: Dict):
+        try:
+            return await self.service.get_harvester_plots_invalid(dataclass_from_dict(PlotPathRequestData, request))
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_harvester_plots_keys_missing(self, request: Dict):
+        try:
+            return await self.service.get_harvester_plots_keys_missing(
+                dataclass_from_dict(PlotPathRequestData, request)
+            )
+        except Exception as e:
+            return {"error": str(e)}
+
+    async def get_harvester_plots_duplicates(self, request: Dict):
+        try:
+            return await self.service.get_harvester_plots_duplicates(dataclass_from_dict(PlotPathRequestData, request))
+        except Exception as e:
+            return {"error": str(e)}
 
     async def get_pool_login_link(self, request: Dict) -> Dict:
         launcher_id: bytes32 = bytes32(hexstr_to_bytes(request["launcher_id"]))

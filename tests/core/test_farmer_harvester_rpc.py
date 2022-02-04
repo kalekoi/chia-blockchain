@@ -152,6 +152,21 @@ async def test_farmer_get_harvesters_and_summary(harvester_farmer_environment, e
 
     await time_out_assert_custom_interval(30, 1, test_get_harvesters)
 
+    # harvester.plot_sync_sender.stop()
+    # await harvester.plot_sync_sender.await_closed()
+    # harvester_dict = (await farmer_rpc_client.get_harvesters())["harvesters"][0]
+    # assert "initial_sync" in harvester_dict
+    # harvester.plot_manager.trigger_refresh()
+    # await time_out_assert(5, harvester.plot_manager.needs_refresh, value=False)
+    # farmer_res = await farmer_rpc_client.get_harvesters()
+    # if len(list(farmer_res["harvesters"])) != 1:
+    #     log.error(f"test_get_harvesters: invalid harvesters {list(farmer_res['harvesters'])}")
+    #     return False
+    # if farmer_res["harvesters"][0]["plots"] != num_plots:
+    #     log.error(f"test_get_harvesters: invalid plots {list(farmer_res['harvesters'])}")
+    #     return False
+    # return True
+
 
 @pytest.mark.asyncio
 async def test_farmer_signage_point_endpoints(harvester_farmer_environment):
@@ -301,3 +316,30 @@ async def test_farmer_get_pool_state(harvester_farmer_environment, self_hostname
     for pool_dict in client_pool_state["pool_state"]:
         for key in ["points_found_24h", "points_acknowledged_24h"]:
             assert pool_dict[key][0] == list(since_24h)
+
+
+@pytest.mark.asyncio
+async def test_farmer_get_harvester_plot_endpoints(harvester_farmer_environment):
+    (
+        farmer_service,
+        farmer_rpc_api,
+        farmer_rpc_client,
+        harvester_service,
+        harvester_rpc_api,
+        harvester_rpc_client,
+    ) = harvester_farmer_environment
+
+    res = await harvester_rpc_client.get_plots()
+    plot_count = len(res["plots"])
+    assert plot_count == 20
+
+    harvester = harvester_service._node
+    harvester_id = harvester_service._server.node_id
+
+    harvester.plot_manager.reset()
+    harvester.plot_manager.trigger_refresh()
+    await time_out_assert(5, harvester.plot_manager.needs_refresh, value=False)
+
+    await time_out_assert(30, farmer_service._api.farmer.plot_sync_receivers[harvester_id].initial_sync, False)
+    page_result = await farmer_rpc_client.get_harvester_plots(harvester_id, 1, 5)
+    assert "error" not in page_result

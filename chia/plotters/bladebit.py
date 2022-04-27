@@ -74,7 +74,7 @@ def get_bladebit_executable_path(plotters_root_path: Path) -> Path:
     return get_bladebit_exec_package_path()
 
 
-def get_bladebit_version(plotters_root_path: Path) -> Union[Tuple[None, Exception], Tuple[bool, List[str]]]:
+def get_bladebit_version(plotters_root_path: Path) -> Tuple[Optional[bool], Union[str, List[str], Exception]]:
     bladebit_executable_path = get_bladebit_executable_path(plotters_root_path)
     if bladebit_executable_path.exists():
         try:

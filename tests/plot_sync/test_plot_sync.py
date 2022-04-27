@@ -168,8 +168,8 @@ class Environment:
         self.remove_directory(harvester_index, self.dir_invalid, State.invalid)
         self.remove_directory(harvester_index, self.dir_duplicates, State.duplicates)
 
-    async def plot_sync_callback(self, peer_id: bytes32, delta: Delta) -> None:
-        harvester: Optional[Harvester] = self.get_harvester(peer_id)
+    async def plot_sync_callback(self, receiver: Receiver, delta: Delta) -> None:
+        harvester: Optional[Harvester] = self.get_harvester(receiver.connection().peer_node_id)
         assert harvester is not None
         expected = self.expected[self.harvesters.index(harvester)]
         assert len(expected.valid_delta.additions) == len(delta.valid.additions)

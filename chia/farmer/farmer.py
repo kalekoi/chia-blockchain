@@ -2,6 +2,7 @@ import asyncio
 import dataclasses
 import json
 import logging
+import operator
 import time
 import traceback
 from pathlib import Path
@@ -80,7 +81,9 @@ class PlotInfoRequestData:
     peer_id: bytes32
     page: int
     page_size: int
-    filter: Optional[List[Tuple[str, str]]] = None
+    sort_key: str = "filename"
+    filter: List[Tuple[str, str]] = dataclasses.field(default_factory=list)
+    reverse: bool = False
 
 
 @dataclasses.dataclass
@@ -89,6 +92,7 @@ class PlotPathRequestData:
     page: int
     page_size: int
     filter: Optional[str] = None
+    reverse: bool = False
 
 
 class Farmer:
@@ -698,6 +702,7 @@ class Farmer:
     def paginated_plot_path_request(self, source: List[str], request: PlotPathRequestData) -> Dict:
         if request.filter is not None:
             source = [plot for plot in source if request.filter in plot]
+        source = sorted(source, reverse=request.reverse)
         return self.paginated_plot_request(source, request)
 
     async def get_harvester_plots(self, request: PlotInfoRequestData) -> Dict:
@@ -707,7 +712,8 @@ class Farmer:
         if request.filter is not None:
             for f in request.filter:
                 plot_list = [plot for plot in plot_list if f[1] in str(getattr(plot, f[0]))]
-
+        if request.sort_key is not None:
+            plot_list = sorted(plot_list, key=operator.attrgetter(request.sort_key), reverse=request.reverse)
         return self.paginated_plot_request(plot_list, request)
 
     async def get_harvester_plots_invalid(self, request: PlotPathRequestData) -> Dict:

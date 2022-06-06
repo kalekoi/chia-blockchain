@@ -3,15 +3,15 @@ import pathlib
 from multiprocessing import freeze_support
 from typing import Dict
 
-from chia.consensus.constants import ConsensusConstants
-from chia.consensus.default_constants import DEFAULT_CONSTANTS
-from chia.rpc.crawler_rpc_api import CrawlerRpcApi
-from chia.seeder.crawler import Crawler
-from chia.seeder.crawler_api import CrawlerAPI
-from chia.server.outbound_message import NodeType
-from chia.server.start_service import run_service
-from chia.util.config import load_config_cli
-from chia.util.default_root import DEFAULT_ROOT_PATH
+from achi.consensus.constants import ConsensusConstants
+from achi.consensus.default_constants import DEFAULT_CONSTANTS
+from achi.rpc.crawler_rpc_api import CrawlerRpcApi
+from achi.seeder.crawler import Crawler
+from achi.seeder.crawler_api import CrawlerAPI
+from achi.server.outbound_message import NodeType
+from achi.server.start_service import run_service
+from achi.util.config import load_config_cli
+from achi.util.default_root import DEFAULT_ROOT_PATH
 
 # See: https://bugs.python.org/issue29288
 "".encode("idna")
